@@ -2,6 +2,7 @@
 
 #include <QMouseEvent>
 #include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
 #include <QScreen>
 
 #include <array>
@@ -9,10 +10,10 @@
 namespace
 {
 
-constexpr std::array<GLfloat, 15u> vertices = {
-	0.0f, 0.707f, 1.f, 0.f, 0.f,
-	-0.5f, -0.5f, 0.f, 1.f, 0.f,
-	0.5f, -0.5f, 0.f, 0.f, 1.f,
+constexpr std::array<GLfloat, 21u> vertices = {
+	0.0f, 0.707f, 1.f, 0.f, 0.f, 0.0f, 0.0f,
+	-0.5f, -0.5f, 0.f, 1.f, 0.f, 0.5f, 1.0f,
+	0.5f, -0.5f, 0.f, 0.f, 1.f, 1.0f, 0.0f,
 };
 constexpr std::array<GLuint, 3u> indices = {0, 1, 2};
 
@@ -43,17 +44,25 @@ void TriangleWindow::init()
 	ibo_.setUsagePattern(QOpenGLBuffer::StaticDraw);
 	ibo_.allocate(indices.data(), static_cast<int>(indices.size() * sizeof(GLuint)));
 
+	texture_ = std::make_unique<QOpenGLTexture>(QImage(":/Textures/voronoi.png"));
+	texture_->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+	texture_->setWrapMode(QOpenGLTexture::WrapMode::Repeat);
+
 	// Bind attributes
 	program_->bind();
 
 	program_->enableAttributeArray(0);
-	program_->setAttributeBuffer(0, GL_FLOAT, 0, 2, static_cast<int>(5 * sizeof(GLfloat)));
+	program_->setAttributeBuffer(0, GL_FLOAT, 0, 2, static_cast<int>(7 * sizeof(GLfloat)));
 
 	program_->enableAttributeArray(1);
 	program_->setAttributeBuffer(1, GL_FLOAT, static_cast<int>(2 * sizeof(GLfloat)), 3,
-								 static_cast<int>(5 * sizeof(GLfloat)));
+								 static_cast<int>(7 * sizeof(GLfloat)));
 
-	matrixUniform_ = program_->uniformLocation("matrix");
+	program_->enableAttributeArray(2);
+	program_->setAttributeBuffer(2, GL_FLOAT, static_cast<int>(5 * sizeof(GLfloat)), 2,
+								 static_cast<int>(7 * sizeof(GLfloat)));
+
+	mvpUniform_ = program_->uniformLocation("mvp");
 
 	// Release all
 	program_->release();
@@ -93,17 +102,27 @@ void TriangleWindow::render()
 	vao_.bind();
 
 	// Update uniform value
-	program_->setUniformValue(matrixUniform_, matrix);
+	program_->setUniformValue(mvpUniform_, matrix);
+
+	glActiveTexture(GL_TEXTURE0);
+	texture_->bind();
 
 	// Draw
 	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
 	// Release VAO and shader program
+	texture_->release();
 	vao_.release();
 	program_->release();
 
 	// Increment frame counter
 	++frame_;
+}
+
+void TriangleWindow::destroy()
+{
+	texture_.reset();
+	program_.reset();
 }
 
 void TriangleWindow::mousePressEvent(QMouseEvent * e)

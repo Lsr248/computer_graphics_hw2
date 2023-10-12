@@ -37,6 +37,8 @@ void GLWindow::render()
 
 void GLWindow::render(const QPainter &) {}
 
+void GLWindow::destroy() {}
+
 void GLWindow::renderLater()
 {
 	// Post message to request window surface redraw.
@@ -98,6 +100,15 @@ bool GLWindow::event(QEvent * event)
 			// In case someone requested update we render inplace.
 			renderNow();
 			return true;
+		case QEvent::Close:
+		{
+			const auto contextBindSuccess = context_->makeCurrent(this);
+			if (contextBindSuccess)
+			{
+				destroy();
+			}
+			return QWindow::event(event);;
+		}
 		default:
 			return QWindow::event(event);
 	}

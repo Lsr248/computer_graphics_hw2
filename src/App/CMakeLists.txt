@@ -3,9 +3,11 @@ set(SRCS
     TriangleWindow.cpp
     TriangleWindow.h
 
-    shaders.qrc
     Shaders/diffuse.fs
     Shaders/diffuse.vs
+    Textures/voronoi.png
+
+    resources.qrc
 )
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)

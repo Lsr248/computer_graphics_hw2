@@ -6,6 +6,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
+#include <QOpenGLTexture>
 #include <QQuaternion>
 #include <QVector2D>
 #include <QVector3D>
@@ -18,17 +19,20 @@ class TriangleWindow final : public fgl::GLWindow
 public:
 	void init() override;
 	void render() override;
+	void destroy() override;
 
 protected:
 	void mousePressEvent(QMouseEvent * e) override;
 	void mouseReleaseEvent(QMouseEvent * e) override;
 
 private:
-	GLint matrixUniform_ = -1;
+	GLint mvpUniform_ = -1;
 
 	QOpenGLBuffer vbo_{QOpenGLBuffer::Type::VertexBuffer};
 	QOpenGLBuffer ibo_{QOpenGLBuffer::Type::IndexBuffer};
 	QOpenGLVertexArrayObject vao_;
+
+	std::unique_ptr<QOpenGLTexture> texture_ = nullptr;
 
 	std::unique_ptr<QOpenGLShaderProgram> program_ = nullptr;
 

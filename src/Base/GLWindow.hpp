@@ -20,12 +20,15 @@ class GLWindow : public QWindow
 	Q_OBJECT
 public:
 	explicit GLWindow(QWindow * parent = nullptr);
+	virtual ~GLWindow() = default;
 
 public:
 	virtual void init();
 
 	virtual void render();
 	virtual void render(const QPainter & painter);
+
+	virtual void destroy();
 
 public:
 	void setAnimated(bool animating = false);
