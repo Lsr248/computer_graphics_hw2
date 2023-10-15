@@ -39,12 +39,6 @@ void GLWindow::render(const QPainter &) {}
 
 void GLWindow::destroy() {}
 
-void GLWindow::renderLater()
-{
-	// Post message to request window surface redraw.
-	requestUpdate();
-}
-
 void GLWindow::setAnimated(const bool animating) { animating_ = animating; }
 
 void GLWindow::renderNow()
@@ -87,7 +81,8 @@ void GLWindow::renderNow()
 	// Post message to redraw later if animating.
 	if (animating_)
 	{
-		renderLater();
+		// Post message to request window surface redraw.
+		requestUpdate();
 	}
 }
 

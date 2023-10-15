@@ -35,7 +35,6 @@ public:
 
 public slots:
 	void renderNow();
-	void renderLater();
 
 protected:
 	bool event(QEvent * event) override;
