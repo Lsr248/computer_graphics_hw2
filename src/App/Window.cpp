@@ -1,8 +1,10 @@
 #include "Window.h"
 
 #include <QMouseEvent>
+#include <QLabel>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
+#include <QVBoxLayout>
 #include <QScreen>
 
 #include <array>
@@ -18,6 +20,27 @@ constexpr std::array<GLfloat, 21u> vertices = {
 constexpr std::array<GLuint, 3u> indices = {0, 1, 2};
 
 }// namespace
+
+Window::Window()
+{
+	const auto formatFPS = [](const auto value) {
+		return QString("FPS: %1").arg(QString::number(value));
+	};
+
+	auto fps = new QLabel(formatFPS(0), this);
+	fps->setStyleSheet("QLabel { color : white; }");
+
+	auto layout = new QVBoxLayout();
+	layout->addWidget(fps, 1);
+
+	setLayout(layout);
+
+	timer_.start();
+
+	connect(this, &Window::updateUI, [=] {
+		fps->setText(formatFPS(ui_.fps));
+	});
+}
 
 Window::~Window()
 {
@@ -92,6 +115,8 @@ void Window::onInit()
 
 void Window::onRender()
 {
+	const auto guard = captureMetrics();
+
 	// Clear buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -119,6 +144,14 @@ void Window::onRender()
 	texture_->release();
 	vao_.release();
 	program_->release();
+
+	++frameCount_;
+
+	// Request redraw if animated
+	if (animated_)
+	{
+		update();
+	}
 }
 
 void Window::onResize(const size_t width, const size_t height)
@@ -133,4 +166,32 @@ void Window::onResize(const size_t width, const size_t height)
 	const auto fov = 60.0f;
 	projection_.setToIdentity();
 	projection_.perspective(fov, aspect, zNear, zFar);
+}
+
+Window::PerfomanceMetricsGuard::PerfomanceMetricsGuard(std::function<void()> callback)
+	: callback_{ std::move(callback) }
+{
+}
+
+Window::PerfomanceMetricsGuard::~PerfomanceMetricsGuard()
+{
+	if (callback_)
+	{
+		callback_();
+	}
+}
+
+auto Window::captureMetrics() -> PerfomanceMetricsGuard
+{
+	return PerfomanceMetricsGuard{
+		[&] {
+			if (timer_.elapsed() >= 1000)
+			{
+				const auto elapsedSeconds = static_cast<float>(timer_.restart()) / 1000.0f;
+				ui_.fps = static_cast<size_t>(std::round(frameCount_ / elapsedSeconds));
+				frameCount_ = 0;
+				emit updateUI();
+			}
+		}
+	};
 }
