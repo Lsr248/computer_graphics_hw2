@@ -18,6 +18,10 @@ Help students with their submission is the main goal of this repository. Do not 
 - (Optionally) Your favourite IDE;
 - (Optionally) Ninja build [https://ninja-build.org/](https://ninja-build.org/).
 
+## Assets
+
+- [KhronosGroup/glTF-Sample-Models](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
+
 ## Hardware requirements
 
 - GPU with OpenGL 3+ support.
