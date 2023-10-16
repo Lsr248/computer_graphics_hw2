@@ -9,6 +9,8 @@
 
 #include <array>
 
+#include <tinygltf/tiny_gltf.h>
+
 namespace
 {
 
