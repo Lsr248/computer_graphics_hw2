@@ -1,4 +1,4 @@
-#include "TriangleWindow.h"
+#include "Window.h"
 
 #include <QMouseEvent>
 #include <QOpenGLFunctions>
@@ -19,7 +19,17 @@ constexpr std::array<GLuint, 3u> indices = {0, 1, 2};
 
 }// namespace
 
-void TriangleWindow::init()
+Window::~Window()
+{
+	{
+		// Free resources with context bounded.
+		const auto guard = bindContext();
+		texture_.reset();
+		program_.reset();
+	}
+}
+
+void Window::onInit()
 {
 	// Configure shaders
 	program_ = std::make_unique<QOpenGLShaderProgram>(this);
@@ -72,38 +82,33 @@ void TriangleWindow::init()
 	ibo_.release();
 	vbo_.release();
 
-	// Uncomment to enable depth test and face culling
-	// glEnable(GL_DEPTH_TEST);
-	// glEnable(GL_CULL_FACE);
+	// Еnable depth test and face culling
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	// Clear all FBO buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void TriangleWindow::render()
+void Window::onRender()
 {
-	// Configure viewport
-	const auto retinaScale = devicePixelRatio();
-	glViewport(0, 0, static_cast<GLint>(width() * retinaScale),
-			   static_cast<GLint>(height() * retinaScale));
-
 	// Clear buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Calculate MVP matrix
-	QMatrix4x4 matrix;
-	matrix.perspective(60.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-	matrix.translate(0, 0, -2);
-	const auto angle = 100.0 * static_cast<double>(frame_) / screen()->refreshRate();
-	matrix.rotate(static_cast<float>(angle), rotationAxis_);
+	model_.setToIdentity();
+	model_.translate(0, 0, -2);
+	view_.setToIdentity();
+	const auto mvp = projection_ * view_ * model_;
 
 	// Bind VAO and shader program
 	program_->bind();
 	vao_.bind();
 
 	// Update uniform value
-	program_->setUniformValue(mvpUniform_, matrix);
+	program_->setUniformValue(mvpUniform_, mvp);
 
+	// Activate texture unit and bind texture
 	glActiveTexture(GL_TEXTURE0);
 	texture_->bind();
 
@@ -114,24 +119,18 @@ void TriangleWindow::render()
 	texture_->release();
 	vao_.release();
 	program_->release();
-
-	// Increment frame counter
-	++frame_;
 }
 
-void TriangleWindow::destroy()
+void Window::onResize(const size_t width, const size_t height)
 {
-	texture_.reset();
-	program_.reset();
-}
+	// Configure viewport
+	glViewport(0, 0, static_cast<GLint>(width), static_cast<GLint>(height));
 
-void TriangleWindow::mousePressEvent(QMouseEvent * e)
-{
-	mousePressPosition_ = QVector2D(e->localPos());
-}
-
-void TriangleWindow::mouseReleaseEvent(QMouseEvent * e)
-{
-	const auto diff = QVector2D(e->localPos()) - mousePressPosition_;
-	rotationAxis_ = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+	// Configure matrix
+	const auto aspect = static_cast<float>(width) / static_cast<float>(height);
+	const auto zNear = 0.1f;
+	const auto zFar = 100.0f;
+	const auto fov = 60.0f;
+	projection_.setToIdentity();
+	projection_.perspective(fov, aspect, zNear, zFar);
 }

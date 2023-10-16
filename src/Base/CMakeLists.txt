@@ -1,15 +1,15 @@
 set(BASE_SRCS
-    GLWindow.cpp
-    GLWindow.hpp
-)
+        GLWidget.cpp
+        GLWidget.hpp
+        )
 
 add_library(Base ${BASE_SRCS})
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 target_link_libraries(Base
-    PRIVATE
+        PRIVATE
         Qt5::Widgets
-)
+        )
 
 add_library(FGL::Base ALIAS Base)
