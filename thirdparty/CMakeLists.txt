@@ -5,8 +5,6 @@ include_directories(GSL/include)
 add_subdirectory(glm)
 include_directories(glm)
 
-set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF)
-set(TINYGLTF_HEADER_ONLY ON)
 add_subdirectory(tinygltf)
 file(CREATE_LINK "${CMAKE_CURRENT_LIST_DIR}/tinygltf/json.hpp" "${CMAKE_CURRENT_LIST_DIR}/tinygltf/tinygltf/json.hpp" COPY_ON_ERROR)
 file(CREATE_LINK "${CMAKE_CURRENT_LIST_DIR}/tinygltf/stb_image.h" "${CMAKE_CURRENT_LIST_DIR}/tinygltf/tinygltf/stb_image.h" COPY_ON_ERROR)
@@ -15,9 +13,16 @@ file(CREATE_LINK "${CMAKE_CURRENT_LIST_DIR}/tinygltf/tiny_gltf.h" "${CMAKE_CURRE
 include_directories(tinygltf)
 
 # Disable warnings from thirdparty libs
-target_compile_options(GSL INTERFACE -Wno-error)
-target_compile_options(glm INTERFACE -Wno-error)
-target_compile_options(tinygltf INTERFACE -Wno-error)
+if (MSVC)
+    target_compile_options(GSL INTERFACE /WX-)
+    target_compile_options(glm INTERFACE /WX-)
+    target_compile_options(tinygltf INTERFACE /WX-)
+else()
+    target_compile_options(GSL INTERFACE -Wno-error)
+    target_compile_options(glm INTERFACE -Wno-error)
+    target_compile_options(tinygltf INTERFACE -Wno-error)
+endif()
+
 
 add_library(thirdparty::GSL ALIAS GSL)
 add_library(thirdparty::glm ALIAS glm)
