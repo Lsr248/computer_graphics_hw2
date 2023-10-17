@@ -51,7 +51,9 @@ if (TINYGLTF_HEADER_ONLY)
 
 else (TINYGLTF_HEADER_ONLY)
   add_library(tinygltf)
-  target_compile_options(tinygltf PRIVATE -Wno-error)
+  if (NOT MSVC)
+    target_compile_options(tinygltf PRIVATE -Wno-error)
+  endif()
   target_sources(tinygltf PRIVATE
           ${CMAKE_CURRENT_SOURCE_DIR}/tiny_gltf.cc)
   target_include_directories(tinygltf
