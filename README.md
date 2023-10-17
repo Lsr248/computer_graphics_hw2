@@ -22,6 +22,12 @@ Help students with their submission is the main goal of this repository. Do not 
 
 - [KhronosGroup/glTF-Sample-Models](https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0)
 
+## 3d-party libs
+
+- [glm](https://github.com/g-truc/glm)
+- [GSL](https://github.com/microsoft/GSL)
+- [tinygltf](https://github.com/syoyo/tinygltf)
+
 ## Hardware requirements
 
 - GPU with OpenGL 3+ support.
