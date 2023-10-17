@@ -27,7 +27,7 @@ constexpr std::array<GLuint, 3u> indices = {0, 1, 2};
 
 }// namespace
 
-Window::Window()
+Window::Window() noexcept
 {
 	const auto formatFPS = [](const auto value) {
 		return QString("FPS: %1").arg(QString::number(value));

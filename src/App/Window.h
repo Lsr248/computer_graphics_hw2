@@ -16,7 +16,7 @@ class Window final : public fgl::GLWidget
 {
 	Q_OBJECT
 public:
-	Window();
+	Window() noexcept;
 	~Window() override;
 
 public: // fgl::GLWidget
