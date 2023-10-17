@@ -21,6 +21,7 @@ if (TINYGLTF_BUILD_LOADER_EXAMPLE)
   add_executable(loader_example
     loader_example.cc
     )
+  target_compile_options(loader_example PRIVATE -Wno-error)
 endif (TINYGLTF_BUILD_LOADER_EXAMPLE)
 
 if (TINYGLTF_BUILD_GL_EXAMPLES)
