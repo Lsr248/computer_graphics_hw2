@@ -1,9 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>Models/chess.glb</file>
+        <file>Models/cube.glb</file>
     </qresource>
     <qresource prefix="/">
         <file>Textures/voronoi.png</file>
+        <file>Textures/avatar.png</file>
     </qresource>
     <qresource prefix="/">
         <file>Shaders/diffuse.fs</file>
